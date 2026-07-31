@@ -1,7 +1,7 @@
 /* ============================================================
    LOGO DEL DEPARTAMENTO (incrustado como base64, imagen fija)
    ============================================================ */
-const LOGO_SRC = "/IMAGENES/logo especialidad.jpg"
+const LOGO_SRC = "logo especialidad.jpg"
 
 /* ============================================================
    ICONOS (diseños propios y abstractos por rol de ciberhéroe)
