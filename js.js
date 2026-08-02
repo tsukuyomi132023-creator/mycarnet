@@ -118,7 +118,7 @@ function cardHTML(data){
         <div class="brand-text">
           <div class="brand-title">CIBERSEGURIDAD</div>
           <div class="brand-sub">Carnet de identificación</div>
-          <div class="brand-sub">CTP José Figueres Ferrer</div>
+          <div class="brand-sub2">CTP José Figueres Ferrer</div>
         </div>
         <span class="top-msg">Te esperamos en Ciberseguridad</span>
       </div>
