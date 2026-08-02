@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Carnets CiberHéroes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Rubik:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="estilo.css">
+<script src="js.js" defer></script>
+</head>
+<body>
+<div class="halftone"></div>
+
+<header class="app-header">
+  <span class="kicker">★ ACADEMIA DE CIBERSEGURIDAD ★</span>
+  <h1>CARNETS CIBERHÉROES</h1>
+  <p>Crea carnets de identificación estilo cómic para el equipo de ciberseguridad, descárgalos y arma una hoja lista para imprimir. Diseño pensado para ahorrar tinta.</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="crear">🦸 Crear carnet</button>
+  <button class="tab-btn" data-tab="imprimir">🖨️ Hoja para imprimir</button>
+</nav>
+
+<div class="wrap">
+
+  <!-- ===================== TAB: CREAR ===================== -->
+  <section id="tab-crear" class="tab-panel active">
+    <div class="editor-grid">
+
+      <form class="panel" id="cardForm" onsubmit="return false;">
+        <h2>Datos del carnet</h2>
+
+        <div class="field">
+          <label>Fotografía</label>
+          <div class="photo-uploader">
+            <div class="thumb" id="photoThumb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.4"/><path d="M4 20c1.2-4 4.4-6 8-6s6.8 2 8 6"/></svg>
+            </div>
+            <div class="up-text">JPG o PNG. Podrás ajustar la posición y el tamaño antes de guardarla.</div>
+            <div class="up-actions">
+              <label class="btn-file" for="photoInput">Subir foto</label>
+              <button type="button" class="btn-file btn-file-edit" id="btnEditPhoto">Editar foto</button>
+            </div>
+            <input type="file" id="photoInput" accept="image/*">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Nombre completo</label>
+          <input type="text" id="fName" placeholder="Ej. Ana Martínez Rojas" maxlength="40">
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Cédula</label>
+            <input type="text" id="fCedula" placeholder="Ej. 1-2345-6789" maxlength="20" inputmode="numeric" pattern="[0-9-]*">
+          </div>
+          <div class="field">
+            <label>Edad</label>
+            <input type="number" id="fEdad" placeholder="Ej. 21" min="0" max="120">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Sección</label>
+          <input type="text" id="fSeccion" placeholder="Ej. 10B se convierte en 10-B" maxlength="30">
+          <div class="subtext">El guion "-" se agrega automáticamente entre el número y la letra.</div>
+        </div>
+
+        <div class="field">
+          <label>Rol de ciberhéroe favorito</label>
+          <div class="hero-select-grid" id="heroGrid"></div>
+        </div>
+
+        <div class="field">
+          <label>Lema / frase del carnet</label>
+          <textarea id="fFrase" rows="2" maxlength="90" readonly tabindex="-1"></textarea>
+          <div class="subtext">Se asigna automáticamente según el rol elegido y no se puede editar.</div>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline" id="btnClear">Limpiar formulario</button>
+        </div>
+      </form>
+
+      <div class="preview-panel">
+        <div class="panel">
+          <h2>Vista previa</h2>
+          <div class="preview-stage">
+            <div class="zoom">
+              <div id="cardPreview"></div>
+            </div>
+          </div>
+
+          <div class="export-row">
+            <button class="btn btn-outline btn-block" id="btnPNG">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              PNG
+            </button>
+            <button class="btn btn-outline btn-block" id="btnJPG">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              JPG
+            </button>
+            <button class="btn btn-outline btn-block" id="btnPDF">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              PDF
+            </button>
+          </div>
+
+          <button class="btn btn-primary btn-block" id="btnAddGallery" style="margin-top:10px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Agregar a la hoja de impresión
+          </button>
+
+          <button class="btn btn-outline btn-block" id="btnShowQR" style="margin-top:10px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/></svg>
+            Descargar con código QR
+          </button>
+
+          <p class="hint">El carnet usa <b>fondo blanco</b>, líneas finas y una trama de puntos muy suave (estilo cómic clásico): al imprimirlo en color o blanco y negro se gasta muy poca tinta.</p>
+          <div class="err-box" id="errBox"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== TAB: IMPRIMIR ===================== -->
+  <section id="tab-imprimir" class="tab-panel">
+    <div class="gallery-toolbar">
+      <span class="count"><b id="galleryCount">0</b> carnet(s) en la lista</span>
+      <button class="btn btn-outline" id="btnSelectAll">Seleccionar todos</button>
+      <button class="btn btn-outline" id="btnSelectNone">Deseleccionar todos</button>
+      <button class="btn btn-danger" id="btnClearGallery">Vaciar lista</button>
+      <button class="btn btn-primary" id="btnGeneratePDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg>
+        <span id="btnGenerateLabel">Generar hoja PDF (para imprimir)</span>
+      </button>
+    </div>
+
+    <div id="galleryGrid" class="gallery-grid"></div>
+
+    <div id="galleryEmpty" class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+      <h3>Aún no hay carnets aquí</h3>
+      <p>Crea un carnet en la pestaña "Crear carnet" y usa el botón "Agregar a la hoja de impresión".</p>
+    </div>
+  </section>
+
+</div>
+<div id="hiddenRender"></div>
+<div class="toast" id="toast"></div>
+
+<div class="pe-overlay" id="photoEditorOverlay">
+  <div class="pe-modal">
+    <h3>Ajusta tu fotografía</h3>
+    <p class="pe-hint">Arrastra la imagen para moverla y usa el control para acercar o alejar. El recuadro punteado muestra el tamaño exacto permitido para la foto del carnet.</p>
+    <div class="pe-frame-wrap">
+      <div class="pe-frame" id="peFrame">
+        <img id="peImg" draggable="false" alt="foto a editar">
+      </div>
+    </div>
+    <div class="pe-zoom-row">
+      <svg class="pe-zoom-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="range" id="peZoom" min="100" max="300" value="100">
+    </div>
+    <div class="pe-actions">
+      <button type="button" class="btn btn-outline" id="peCancel">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="peConfirm">Usar esta foto</button>
+    </div>
+  </div>
+</div>
+
+<div class="qr-overlay" id="qrOverlay">
+  <div class="qr-modal">
+    <h3>Descarga por QR</h3>
+    <p class="qr-hint">Apunta la cámara de tu teléfono al código: el carnet se abrirá solo en la pantalla de tu celular, listo para guardarlo.</p>
+
+    <div class="qr-config" id="qrConfig">
+      <div class="qr-config-header">
+        <label for="qrApiKey">API key de ImgBB</label>
+      </div>
+      <div class="qr-config-row">
+        <div class="qr-key-field">
+          <input type="password" id="qrApiKey" placeholder="Pega aquí tu API key de imgbb.com">
+          <button type="button" class="qr-eye-btn" id="qrToggleVisibility" title="Mostrar/ocultar API key">
+            <svg id="qrEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <button type="button" class="btn btn-outline" id="qrSaveKey">Guardar</button>
+      </div>
+      <p class="qr-config-hint" id="qrConfigHint">Pega tu API key y presiona "Guardar". Consíguela gratis en <b>api.imgbb.com</b>.</p>
+    </div>
+
+    <div class="qr-status" id="qrStatus">Generando código...</div>
+
+    <div class="qr-side-by-side">
+      <div class="qr-col qr-col-qr">
+        <div class="qr-col-label">Código QR</div>
+        <div class="qr-code-box" id="qrCodeBox"></div>
+        <div class="qr-link-row" id="qrLinkRow" style="display:none;">
+          <input type="text" id="qrLinkText" readonly>
+          <button type="button" class="btn btn-outline" id="qrCopyLink">Copiar</button>
+        </div>
+        <a href="#" id="qrDeleteLink" class="qr-delete-link" target="_blank" rel="noopener" style="display:none;">🗑️ Borrar esta imagen del hosting</a>
+      </div>
+      <div class="qr-col qr-col-preview">
+        <div class="qr-col-label">Esta es tu nueva identidad</div>
+        <div class="qr-preview-frame">
+          <img id="qrPreviewImg" alt="Tu carnet">
+        </div>
+      </div>
+    </div>
+
+    <div class="qr-actions">
+      <button type="button" class="btn btn-outline" id="qrClose">Cerrar</button>
+      <button type="button" class="btn btn-primary" id="qrDownload">Descargar imagen</button>
+    </div>
+
+    <p class="qr-disclaimer" id="qrDisclaimer">Sin una API key de ImgBB configurada arriba, el código guarda una miniatura comprimida del carnet directamente adentro (sin usar ningún servidor), así que se ve más simple y pesa poco para poder escanearse con facilidad.</p>
+  </div>
+</div>
+</body>
+</html>
